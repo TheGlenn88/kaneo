@@ -17,6 +17,7 @@ import {
   sendOutboundRequest,
 } from "../utils/outbound-request";
 import { getLocalizedDeliveryContent } from "./delivery-copy";
+import { queueForEmailDigest } from "./email-digest/queue";
 import { resolveEmailTask } from "./resolve-email-task";
 import { decryptSecret } from "./secrets";
 
@@ -35,7 +36,7 @@ type DeliveryContent = {
   body: string;
 };
 
-function getClientUrl() {
+export function getClientUrl() {
   return process.env.KANEO_CLIENT_URL || "http://localhost:5173";
 }
 
@@ -72,7 +73,7 @@ function formatLeadTime(minutes: number | null) {
   return `in ${minutes} minutes`;
 }
 
-function buildDeliveryContent(
+export function buildDeliveryContent(
   notification: {
     type: string;
     content: string | null;
@@ -208,7 +209,7 @@ function buildDeliveryContent(
   }
 }
 
-async function resolveNotificationContext(notification: {
+export async function resolveNotificationContext(notification: {
   resourceType: string | null;
   resourceId: string | null;
 }): Promise<ResolvedNotificationContext | null> {
@@ -498,7 +499,18 @@ export async function deliverNotification(
 
   const deliveries: Array<Promise<void>> = [];
 
-  if (decryptedPreference.emailEnabled && rule.emailEnabled && user.email) {
+  if (
+    decryptedPreference.emailEnabled &&
+    rule.emailEnabled &&
+    user.email &&
+    preference.emailDigestEnabled
+  ) {
+    deliveries.push(queueForEmailDigest(notification.id));
+  } else if (
+    decryptedPreference.emailEnabled &&
+    rule.emailEnabled &&
+    user.email
+  ) {
     const recipient = user.email;
     deliveries.push(
       (async () => {

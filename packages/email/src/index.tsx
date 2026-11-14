@@ -6,6 +6,7 @@ export {
   sendAccountPasswordEmail,
   sendEmailVerificationEmail,
   sendMagicLinkEmail,
+  sendNotificationDigestEmail,
   sendNotificationEmail,
   sendOtpEmail,
   sendPasswordResetEmail,
@@ -25,4 +26,9 @@ export type {
   TaskCardPriority,
 } from "./components/task-card";
 export type { NotificationEmailTask } from "./templates/notification";
+export {
+  type NotificationDigestGroup,
+  type NotificationDigestItem,
+  notificationDigestSubject,
+} from "./templates/notification-digest";
 export type { AccountPasswordPurpose } from "./templates/account-password";

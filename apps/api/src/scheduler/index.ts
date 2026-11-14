@@ -4,6 +4,7 @@ import { replayDeferredIssueEdits } from "../plugins/github/services/deferred-is
 import { replayDeferredLabelFields } from "../plugins/sync/replay-deferred-label-fields";
 import * as Sentry from "@sentry/node";
 import { Cron } from "croner";
+import { sendEmailDigests } from "../notification-preferences/email-digest/send-email-digests";
 import { checkDueDateReminders } from "./due-date-reminders";
 import { checkProjectWebhookReminders } from "./project-webhook-reminders";
 import { reconcileWorkspaceSeats } from "./seat-reconciliation";
@@ -84,6 +85,13 @@ export function initializeScheduler(): void {
   );
   jobs.push(
     new Cron(
+      "* * * * *",
+      { protect: true },
+      withCheckIn("notification-email-digests", sendEmailDigests),
+    ),
+  );
+  jobs.push(
+    new Cron(
       "*/5 * * * *",
       withCheckIn("project-webhook-reminders", checkProjectWebhookReminders),
     ),
@@ -98,7 +106,7 @@ export function initializeScheduler(): void {
     new Cron("23 * * * *", withCheckIn("trial-reminders", checkTrialReminders)),
   );
   console.log(
-    "⏰ Scheduler started (deferred integration edits every minute, reminders every 5 minutes, seat reconciliation and trial reminders hourly)",
+    "⏰ Scheduler started (deferred integration edits and email digests every minute, reminders every 5 minutes, seat reconciliation and trial reminders hourly)",
   );
 }
 

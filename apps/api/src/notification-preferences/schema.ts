@@ -5,6 +5,10 @@ export const workspaceIdParam = z.object({ workspaceId: z.string() });
 // Secrets are write-only: a value sets it, null clears it, omitting leaves it.
 export const updatePreferencesBody = z.object({
   emailEnabled: z.boolean().optional(),
+  emailDigestEnabled: z.boolean().optional().openapi({
+    description:
+      "Group email notifications that arrive close together into one email.",
+  }),
   ntfyEnabled: z.boolean().optional(),
   ntfyServerUrl: z.string().nullable().optional(),
   ntfyTopic: z.string().nullable().optional(),

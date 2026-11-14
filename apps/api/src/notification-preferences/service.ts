@@ -19,6 +19,7 @@ export type NotificationPreferenceProjectMode = "all" | "selected";
 export type NotificationPreferenceResponse = {
   emailAddress: string | null;
   emailEnabled: boolean;
+  emailDigestEnabled: boolean;
   ntfyEnabled: boolean;
   ntfyConfigured: boolean;
   ntfyServerUrl: string | null;
@@ -60,6 +61,7 @@ export type NotificationPreferenceResponse = {
 
 export type UpdateNotificationPreferenceInput = {
   emailEnabled?: boolean;
+  emailDigestEnabled?: boolean;
   ntfyEnabled?: boolean;
   ntfyServerUrl?: string | null;
   ntfyTopic?: string | null;
@@ -205,6 +207,7 @@ export async function getNotificationPreferences(
   return {
     emailAddress,
     emailEnabled: decryptedPreference?.emailEnabled ?? false,
+    emailDigestEnabled: preference?.emailDigestEnabled ?? false,
     ntfyEnabled: decryptedPreference?.ntfyEnabled ?? false,
     ntfyConfigured: Boolean(
       decryptedPreference?.ntfyServerUrl && decryptedPreference?.ntfyTopic,
@@ -390,6 +393,8 @@ export async function updateNotificationPreferences(
   const data = {
     userId,
     emailEnabled,
+    emailDigestEnabled:
+      input.emailDigestEnabled ?? existing?.emailDigestEnabled ?? false,
     ntfyEnabled,
     ntfyServerUrl,
     ntfyTopic,
