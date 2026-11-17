@@ -7,6 +7,7 @@ export type UpsertNotificationWorkspaceRuleRequest = {
   emailEnabled: boolean;
   ntfyEnabled: boolean;
   gotifyEnabled: boolean;
+  pingletEnabled: boolean;
   webhookEnabled: boolean;
   projectMode: "all" | "selected";
   selectedProjectIds?: string[];

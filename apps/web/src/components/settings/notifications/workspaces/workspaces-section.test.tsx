@@ -68,6 +68,8 @@ const preferences = {
   gotifyEnabled: false,
   ntfyConfigured: false,
   ntfyEnabled: false,
+  pingletConfigured: false,
+  pingletEnabled: false,
   webhookConfigured: false,
   webhookEnabled: false,
   workspaces: [
@@ -149,7 +151,7 @@ describe("WorkspacesSection", () => {
     ).toBeTruthy();
     expect(
       dialog.getAllByText("settings:notificationsPage.channelNotConnected"),
-    ).toHaveLength(2);
+    ).toHaveLength(3);
 
     fireEvent.click(
       dialog.getByRole("button", {
@@ -171,6 +173,7 @@ describe("WorkspacesSection", () => {
         emailEnabled: true,
         gotifyEnabled: false,
         ntfyEnabled: false,
+        pingletEnabled: false,
         webhookEnabled: false,
         projectMode: "selected",
         selectedProjectIds: ["p2"],

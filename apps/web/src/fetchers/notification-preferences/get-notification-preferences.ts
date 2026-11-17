@@ -9,6 +9,7 @@ export type NotificationPreferenceWorkspaceRule = {
   emailEnabled: boolean;
   ntfyEnabled: boolean;
   gotifyEnabled: boolean;
+  pingletEnabled: boolean;
   webhookEnabled: boolean;
   projectMode: "all" | "selected";
   selectedProjectIds: string[];
@@ -31,6 +32,12 @@ export type NotificationPreferences = {
   gotifyServerUrl: string | null;
   gotifyTokenConfigured: boolean;
   maskedGotifyToken: string | null;
+  pingletEnabled: boolean;
+  pingletConfigured: boolean;
+  pingletNamespace: string | null;
+  pingletTopic: string | null;
+  pingletTokenConfigured: boolean;
+  maskedPingletToken: string | null;
   webhookEnabled: boolean;
   webhookConfigured: boolean;
   webhookUrl: string | null;

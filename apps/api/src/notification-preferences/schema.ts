@@ -16,6 +16,12 @@ export const updatePreferencesBody = z.object({
   gotifyEnabled: z.boolean().optional(),
   gotifyServerUrl: z.string().nullable().optional(),
   gotifyToken: z.string().nullable().optional(),
+  pingletEnabled: z.boolean().optional(),
+  pingletNamespace: z.string().nullable().optional(),
+  pingletTopic: z.string().nullable().optional(),
+  pingletToken: z.string().nullable().optional().openapi({
+    description: "A Pinglet API key for the namespace.",
+  }),
   webhookEnabled: z.boolean().optional(),
   webhookUrl: z.string().nullable().optional(),
   webhookSecret: z.string().nullable().optional(),
@@ -37,6 +43,9 @@ export const upsertWorkspaceRuleBody = z.object({
   emailEnabled: z.boolean(),
   ntfyEnabled: z.boolean(),
   gotifyEnabled: z.boolean(),
+  pingletEnabled: z.boolean().optional().openapi({
+    description: "Defaults to false.",
+  }),
   webhookEnabled: z.boolean(),
   projectMode: z.enum(["all", "selected"]),
   selectedProjectIds: z.array(z.string()).optional().openapi({

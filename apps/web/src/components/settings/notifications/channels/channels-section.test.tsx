@@ -53,6 +53,12 @@ const basePreferences = {
   gotifyServerUrl: "https://gotify.example.com/base",
   gotifyTokenConfigured: true,
   maskedGotifyToken: "••••abcd",
+  pingletEnabled: false,
+  pingletConfigured: false,
+  pingletNamespace: null,
+  pingletTopic: null,
+  pingletTokenConfigured: false,
+  maskedPingletToken: null,
   webhookEnabled: false,
   webhookConfigured: false,
   webhookUrl: null,
@@ -178,6 +184,58 @@ describe("ChannelsSection", () => {
         name: "settings:notificationsPage.disconnect",
       }),
     ).toBeNull();
+  });
+
+  it("connects Pinglet with a namespace, topic and API key", async () => {
+    render(<ChannelsSection preferences={basePreferences} />);
+    const pinglet = channelRow("pinglet");
+
+    fireEvent.click(pinglet.getByRole("button", { name: /connectChannel/ }));
+    const connect = pinglet.getByRole("button", {
+      name: "settings:notificationsPage.connectPinglet",
+    });
+    fireEvent.change(
+      pinglet.getByLabelText("settings:notificationsPage.pingletNamespace"),
+      { target: { value: "acme" } },
+    );
+    fireEvent.change(
+      pinglet.getByLabelText("settings:notificationsPage.topic"),
+      { target: { value: "kaneo" } },
+    );
+    // The API key is required until one is saved.
+    expect(connect.hasAttribute("disabled")).toBe(true);
+    fireEvent.change(
+      pinglet.getByLabelText("settings:notificationsPage.pingletApiKey"),
+      { target: { value: "pk_secret" } },
+    );
+
+    await act(async () => {
+      fireEvent.click(connect);
+    });
+
+    expect(mutateAsync).toHaveBeenCalledWith({
+      pingletEnabled: true,
+      pingletNamespace: "acme",
+      pingletTopic: "kaneo",
+      pingletToken: "pk_secret",
+    });
+  });
+
+  it("shows a connected Pinglet topic as namespace/topic", () => {
+    render(
+      <ChannelsSection
+        preferences={{
+          ...basePreferences,
+          pingletEnabled: true,
+          pingletConfigured: true,
+          pingletNamespace: "acme",
+          pingletTopic: "kaneo",
+          pingletTokenConfigured: true,
+        }}
+      />,
+    );
+
+    expect(channelRow("pinglet").getByText("acme/kaneo")).toBeTruthy();
   });
 
   it("keeps only one channel panel open", () => {

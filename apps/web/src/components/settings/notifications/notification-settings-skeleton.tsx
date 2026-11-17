@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const SECTIONS = [
   { id: "events", rows: ["assignments", "comments", "status", "reminders"] },
-  { id: "channels", rows: ["email", "gotify", "ntfy", "webhook"] },
+  { id: "channels", rows: ["email", "gotify", "ntfy", "pinglet", "webhook"] },
   { id: "workspaces", rows: ["first", "second"] },
 ];
 

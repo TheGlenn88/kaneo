@@ -12,6 +12,10 @@ export type UpdateNotificationPreferencesRequest = {
   gotifyEnabled?: boolean;
   gotifyServerUrl?: string | null;
   gotifyToken?: string | null;
+  pingletEnabled?: boolean;
+  pingletNamespace?: string | null;
+  pingletTopic?: string | null;
+  pingletToken?: string | null;
   webhookEnabled?: boolean;
   webhookUrl?: string | null;
   webhookSecret?: string | null;

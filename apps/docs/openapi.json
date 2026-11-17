@@ -2217,6 +2217,33 @@
               "null"
             ]
           },
+          "pingletEnabled": {
+            "type": "boolean"
+          },
+          "pingletConfigured": {
+            "type": "boolean"
+          },
+          "pingletNamespace": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "pingletTopic": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "pingletTokenConfigured": {
+            "type": "boolean"
+          },
+          "maskedPingletToken": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "webhookEnabled": {
             "type": "boolean"
           },
@@ -2291,6 +2318,12 @@
           "gotifyServerUrl",
           "gotifyTokenConfigured",
           "maskedGotifyToken",
+          "pingletEnabled",
+          "pingletConfigured",
+          "pingletNamespace",
+          "pingletTopic",
+          "pingletTokenConfigured",
+          "maskedPingletToken",
           "webhookEnabled",
           "webhookConfigured",
           "webhookUrl",
@@ -2331,6 +2364,9 @@
           "gotifyEnabled": {
             "type": "boolean"
           },
+          "pingletEnabled": {
+            "type": "boolean"
+          },
           "webhookEnabled": {
             "type": "boolean"
           },
@@ -2365,6 +2401,7 @@
           "emailEnabled",
           "ntfyEnabled",
           "gotifyEnabled",
+          "pingletEnabled",
           "webhookEnabled",
           "projectMode",
           "selectedProjectIds",
@@ -17537,6 +17574,28 @@
                       "null"
                     ]
                   },
+                  "pingletEnabled": {
+                    "type": "boolean"
+                  },
+                  "pingletNamespace": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "pingletTopic": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "pingletToken": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "A Pinglet API key for the namespace."
+                  },
                   "webhookEnabled": {
                     "type": "boolean"
                   },
@@ -17648,6 +17707,10 @@
                   },
                   "gotifyEnabled": {
                     "type": "boolean"
+                  },
+                  "pingletEnabled": {
+                    "type": "boolean",
+                    "description": "Defaults to false."
                   },
                   "webhookEnabled": {
                     "type": "boolean"

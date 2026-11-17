@@ -12,6 +12,7 @@ export const workspaceRuleSchema = z
     emailEnabled: z.boolean(),
     ntfyEnabled: z.boolean(),
     gotifyEnabled: z.boolean(),
+    pingletEnabled: z.boolean(),
     webhookEnabled: z.boolean(),
     projectMode: z.enum(["all", "selected"]).openapi({
       description:
@@ -42,6 +43,12 @@ export const notificationPreferenceSchema = z
     gotifyServerUrl: z.string().nullable(),
     gotifyTokenConfigured: z.boolean(),
     maskedGotifyToken: z.string().nullable(),
+    pingletEnabled: z.boolean(),
+    pingletConfigured: z.boolean(),
+    pingletNamespace: z.string().nullable(),
+    pingletTopic: z.string().nullable(),
+    pingletTokenConfigured: z.boolean(),
+    maskedPingletToken: z.string().nullable(),
     webhookEnabled: z.boolean(),
     webhookConfigured: z.boolean(),
     webhookUrl: z.string().nullable(),

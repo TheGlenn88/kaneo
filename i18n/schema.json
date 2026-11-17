@@ -3477,6 +3477,36 @@
 						"connectGotify": {
 							"type": "string"
 						},
+						"pingletTitle": {
+							"type": "string"
+						},
+						"pingletDescription": {
+							"type": "string"
+						},
+						"pingletNamespace": {
+							"type": "string"
+						},
+						"pingletNamespacePlaceholder": {
+							"type": "string"
+						},
+						"pingletTopicPlaceholder": {
+							"type": "string"
+						},
+						"pingletApiKey": {
+							"type": "string"
+						},
+						"pingletApiKeyPlaceholder": {
+							"type": "string"
+						},
+						"pingletApiKeyHint": {
+							"type": "string"
+						},
+						"pingletApiKeyHintConfigured": {
+							"type": "string"
+						},
+						"connectPinglet": {
+							"type": "string"
+						},
 						"webhookTitle": {
 							"type": "string"
 						},
@@ -3720,6 +3750,16 @@
 						"gotifyTokenHintConfigured",
 						"gotifyTokenHintRequired",
 						"connectGotify",
+						"pingletTitle",
+						"pingletDescription",
+						"pingletNamespace",
+						"pingletNamespacePlaceholder",
+						"pingletTopicPlaceholder",
+						"pingletApiKey",
+						"pingletApiKeyPlaceholder",
+						"pingletApiKeyHint",
+						"pingletApiKeyHintConfigured",
+						"connectPinglet",
 						"webhookTitle",
 						"webhookDescription",
 						"endpointUrl",

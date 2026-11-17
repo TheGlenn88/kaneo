@@ -31,6 +31,12 @@ export type NotificationPreferenceResponse = {
   gotifyServerUrl: string | null;
   gotifyTokenConfigured: boolean;
   maskedGotifyToken: string | null;
+  pingletEnabled: boolean;
+  pingletConfigured: boolean;
+  pingletNamespace: string | null;
+  pingletTopic: string | null;
+  pingletTokenConfigured: boolean;
+  maskedPingletToken: string | null;
   webhookEnabled: boolean;
   webhookConfigured: boolean;
   webhookUrl: string | null;
@@ -49,6 +55,7 @@ export type NotificationPreferenceResponse = {
     emailEnabled: boolean;
     ntfyEnabled: boolean;
     gotifyEnabled: boolean;
+    pingletEnabled: boolean;
     webhookEnabled: boolean;
     projectMode: NotificationPreferenceProjectMode;
     selectedProjectIds: string[];
@@ -69,6 +76,10 @@ export type UpdateNotificationPreferenceInput = {
   gotifyEnabled?: boolean;
   gotifyServerUrl?: string | null;
   gotifyToken?: string | null;
+  pingletEnabled?: boolean;
+  pingletNamespace?: string | null;
+  pingletTopic?: string | null;
+  pingletToken?: string | null;
   webhookEnabled?: boolean;
   webhookUrl?: string | null;
   webhookSecret?: string | null;
@@ -84,6 +95,8 @@ export type UpsertWorkspaceRuleInput = {
   emailEnabled: boolean;
   ntfyEnabled: boolean;
   gotifyEnabled: boolean;
+  /** Omitted by older clients: keeps the rule's current value. */
+  pingletEnabled?: boolean;
   webhookEnabled: boolean;
   projectMode: NotificationPreferenceProjectMode;
   selectedProjectIds?: string[];
@@ -93,8 +106,12 @@ type WorkspaceRuleChannelState = {
   emailEnabled: boolean;
   ntfyEnabled: boolean;
   gotifyEnabled: boolean;
+  pingletEnabled: boolean;
   webhookEnabled: boolean;
 };
+
+/** Namespace slugs and topic names as Pinglet accepts them in a path. */
+const PINGLET_PATH_SEGMENT = /^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/;
 
 function normalizeOptionalString(value: string | null | undefined) {
   if (typeof value !== "string") {
@@ -183,6 +200,7 @@ export async function getNotificationPreferences(
         ...preference,
         ntfyToken: decryptSecret(preference.ntfyToken),
         gotifyToken: decryptSecret(preference.gotifyToken),
+        pingletToken: decryptSecret(preference.pingletToken),
         webhookSecret: decryptSecret(preference.webhookSecret),
       }
     : null;
@@ -223,6 +241,16 @@ export async function getNotificationPreferences(
     gotifyServerUrl: decryptedPreference?.gotifyServerUrl ?? null,
     gotifyTokenConfigured: Boolean(decryptedPreference?.gotifyToken),
     maskedGotifyToken: maskValue(decryptedPreference?.gotifyToken),
+    pingletEnabled: decryptedPreference?.pingletEnabled ?? false,
+    pingletConfigured: Boolean(
+      decryptedPreference?.pingletNamespace &&
+      decryptedPreference?.pingletTopic &&
+      decryptedPreference?.pingletToken,
+    ),
+    pingletNamespace: decryptedPreference?.pingletNamespace ?? null,
+    pingletTopic: decryptedPreference?.pingletTopic ?? null,
+    pingletTokenConfigured: Boolean(decryptedPreference?.pingletToken),
+    maskedPingletToken: maskValue(decryptedPreference?.pingletToken),
     webhookEnabled: decryptedPreference?.webhookEnabled ?? false,
     webhookConfigured: Boolean(decryptedPreference?.webhookUrl),
     webhookUrl: decryptedPreference?.webhookUrl ?? null,
@@ -242,6 +270,7 @@ export async function getNotificationPreferences(
       emailEnabled: rule.emailEnabled ?? false,
       ntfyEnabled: rule.ntfyEnabled ?? false,
       gotifyEnabled: rule.gotifyEnabled ?? false,
+      pingletEnabled: rule.pingletEnabled ?? false,
       webhookEnabled: rule.webhookEnabled ?? false,
       projectMode:
         rule.projectMode === "selected" ? "selected" : ("all" as const),
@@ -270,6 +299,7 @@ export async function updateNotificationPreferences(
         ...existing,
         ntfyToken: decryptSecret(existing.ntfyToken),
         gotifyToken: decryptSecret(existing.gotifyToken),
+        pingletToken: decryptSecret(existing.pingletToken),
         webhookSecret: decryptSecret(existing.webhookSecret),
       }
     : null;
@@ -291,6 +321,20 @@ export async function updateNotificationPreferences(
     input.gotifyToken,
     decryptedExisting?.gotifyToken,
   );
+  // Pinglet fields follow the secret rule (omit keeps, null clears) so that
+  // disconnecting really forgets them.
+  const pingletNamespace = normalizeSecretInput(
+    input.pingletNamespace,
+    decryptedExisting?.pingletNamespace,
+  );
+  const pingletTopic = normalizeSecretInput(
+    input.pingletTopic,
+    decryptedExisting?.pingletTopic,
+  );
+  const pingletToken = normalizeSecretInput(
+    input.pingletToken,
+    decryptedExisting?.pingletToken,
+  );
   const webhookUrl = normalizeOptionalString(
     input.webhookUrl ?? decryptedExisting?.webhookUrl,
   );
@@ -305,6 +349,8 @@ export async function updateNotificationPreferences(
     input.ntfyEnabled ?? decryptedExisting?.ntfyEnabled ?? false;
   const gotifyEnabled =
     input.gotifyEnabled ?? decryptedExisting?.gotifyEnabled ?? false;
+  const pingletEnabled =
+    input.pingletEnabled ?? decryptedExisting?.pingletEnabled ?? false;
   const webhookEnabled =
     input.webhookEnabled ?? decryptedExisting?.webhookEnabled ?? false;
 
@@ -312,6 +358,7 @@ export async function updateNotificationPreferences(
     emailEnabled: false,
     ntfyEnabled: false,
     gotifyEnabled: false,
+    pingletEnabled: false,
     webhookEnabled: false,
   };
 
@@ -325,6 +372,13 @@ export async function updateNotificationPreferences(
     gotifyEnabled ||
     input.gotifyServerUrl !== undefined ||
     input.gotifyToken !== undefined;
+
+  // Clearing fields (disconnect) needs no validation; setting any does.
+  const shouldValidatePinglet =
+    pingletEnabled ||
+    [input.pingletNamespace, input.pingletTopic, input.pingletToken].some(
+      (value) => typeof value === "string" && value.trim() !== "",
+    );
 
   const shouldValidateWebhook =
     webhookEnabled ||
@@ -373,6 +427,24 @@ export async function updateNotificationPreferences(
     }
   }
 
+  if (shouldValidatePinglet) {
+    if (!pingletNamespace || !pingletTopic || !pingletToken) {
+      throw new HTTPException(400, {
+        message: "Pinglet requires a namespace, topic and API key",
+      });
+    }
+
+    if (
+      !PINGLET_PATH_SEGMENT.test(pingletNamespace) ||
+      !PINGLET_PATH_SEGMENT.test(pingletTopic)
+    ) {
+      throw new HTTPException(400, {
+        message:
+          "Pinglet namespace and topic may only use letters, numbers, - and _",
+      });
+    }
+  }
+
   if (shouldValidateWebhook) {
     if (!webhookUrl) {
       throw new HTTPException(400, {
@@ -408,6 +480,13 @@ export async function updateNotificationPreferences(
       input.gotifyToken === undefined
         ? (existing?.gotifyToken ?? null)
         : (encryptSecret(gotifyToken) ?? null),
+    pingletEnabled,
+    pingletNamespace,
+    pingletTopic,
+    pingletToken:
+      input.pingletToken === undefined
+        ? (existing?.pingletToken ?? null)
+        : (encryptSecret(pingletToken) ?? null),
     webhookEnabled,
     webhookUrl,
     webhookSecret:
@@ -446,13 +525,18 @@ export async function updateNotificationPreferences(
     emailEnabled?: boolean;
     ntfyEnabled?: boolean;
     gotifyEnabled?: boolean;
+    pingletEnabled?: boolean;
     webhookEnabled?: boolean;
   } = {};
 
   const hadEmailEnabled = decryptedExisting?.emailEnabled ?? false;
   const hadNtfyEnabled = decryptedExisting?.ntfyEnabled ?? false;
   const hadGotifyEnabled = decryptedExisting?.gotifyEnabled ?? false;
+  const hadPingletEnabled = decryptedExisting?.pingletEnabled ?? false;
   const hadWebhookEnabled = decryptedExisting?.webhookEnabled ?? false;
+  const pingletReady = Boolean(
+    pingletNamespace && pingletTopic && data.pingletToken,
+  );
 
   if (!emailEnabled) {
     ruleCascade.emailEnabled = false;
@@ -464,6 +548,10 @@ export async function updateNotificationPreferences(
 
   if (!gotifyEnabled || !gotifyServerUrl || !data.gotifyToken) {
     ruleCascade.gotifyEnabled = false;
+  }
+
+  if (!pingletEnabled || !pingletReady) {
+    ruleCascade.pingletEnabled = false;
   }
 
   if (!webhookEnabled || !webhookUrl) {
@@ -485,6 +573,10 @@ export async function updateNotificationPreferences(
     data.gotifyToken
   ) {
     enabledRuleCascade.gotifyEnabled = true;
+  }
+
+  if (pingletEnabled && !hadPingletEnabled && pingletReady) {
+    enabledRuleCascade.pingletEnabled = true;
   }
 
   if (webhookEnabled && !hadWebhookEnabled && webhookUrl) {
@@ -514,6 +606,7 @@ export async function updateNotificationPreferences(
             eq(userNotificationWorkspaceRuleTable.emailEnabled, true),
             eq(userNotificationWorkspaceRuleTable.ntfyEnabled, true),
             eq(userNotificationWorkspaceRuleTable.gotifyEnabled, true),
+            eq(userNotificationWorkspaceRuleTable.pingletEnabled, true),
             eq(userNotificationWorkspaceRuleTable.webhookEnabled, true),
           ),
         ),
@@ -588,12 +681,26 @@ export async function upsertWorkspaceRule(
     });
   }
 
+  if (
+    input.pingletEnabled &&
+    (!preference?.pingletEnabled ||
+      !preference.pingletNamespace ||
+      !preference.pingletTopic ||
+      !preference.pingletToken)
+  ) {
+    throw new HTTPException(400, {
+      message: "Enable Pinglet notifications globally before using them here",
+    });
+  }
+
   const existing = await db.query.userNotificationWorkspaceRuleTable.findFirst({
     where: and(
       eq(userNotificationWorkspaceRuleTable.userId, userId),
       eq(userNotificationWorkspaceRuleTable.workspaceId, workspaceId),
     ),
   });
+  const pingletEnabled =
+    input.pingletEnabled ?? existing?.pingletEnabled ?? false;
 
   let ruleId = existing?.id;
 
@@ -605,6 +712,7 @@ export async function upsertWorkspaceRule(
         emailEnabled: input.emailEnabled,
         ntfyEnabled: input.ntfyEnabled,
         gotifyEnabled: input.gotifyEnabled,
+        pingletEnabled,
         webhookEnabled: input.webhookEnabled,
         projectMode: input.projectMode,
         updatedAt: new Date(),
@@ -620,6 +728,7 @@ export async function upsertWorkspaceRule(
         emailEnabled: input.emailEnabled,
         ntfyEnabled: input.ntfyEnabled,
         gotifyEnabled: input.gotifyEnabled,
+        pingletEnabled,
         webhookEnabled: input.webhookEnabled,
         projectMode: input.projectMode,
       })

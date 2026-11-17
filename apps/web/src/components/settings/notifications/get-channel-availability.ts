@@ -12,6 +12,8 @@ type ChannelPreferences = Pick<
   | "gotifyEnabled"
   | "ntfyConfigured"
   | "ntfyEnabled"
+  | "pingletConfigured"
+  | "pingletEnabled"
   | "webhookConfigured"
   | "webhookEnabled"
 >;
@@ -40,6 +42,10 @@ export function getChannelAvailability(
     ntfy: getExternalAvailability(
       preferences.ntfyConfigured,
       preferences.ntfyEnabled,
+    ),
+    pinglet: getExternalAvailability(
+      preferences.pingletConfigured,
+      preferences.pingletEnabled,
     ),
     webhook: getExternalAvailability(
       preferences.webhookConfigured,
