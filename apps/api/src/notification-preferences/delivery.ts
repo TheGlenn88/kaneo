@@ -28,6 +28,9 @@ type ResolvedNotificationContext = {
   projectName: string | null;
   taskId: string | null;
   taskTitle: string | null;
+  /** The ticket id people know the task by, e.g. "WEB-42". */
+  taskKey: string | null;
+  taskNumber: number | null;
   taskUrl: string | null;
 };
 
@@ -42,6 +45,16 @@ export function getClientUrl() {
 
 function buildTaskUrl(workspaceId: string, projectId: string, taskId: string) {
   return `${getClientUrl()}/dashboard/workspace/${workspaceId}/project/${projectId}/task/${taskId}`;
+}
+
+export function buildTaskKey(
+  projectSlug: string | null | undefined,
+  taskNumber: number | null | undefined,
+) {
+  if (!projectSlug || taskNumber === null || taskNumber === undefined) {
+    return null;
+  }
+  return `${projectSlug.toUpperCase()}-${taskNumber}`;
 }
 
 function getStringValue(
@@ -222,7 +235,9 @@ export async function resolveNotificationContext(notification: {
       .select({
         taskId: taskTable.id,
         taskTitle: taskTable.title,
+        taskNumber: taskTable.number,
         projectId: projectTable.id,
+        projectSlug: projectTable.slug,
         projectName: projectTable.name,
         workspaceId: workspaceTable.id,
         workspaceName: workspaceTable.name,
@@ -247,6 +262,8 @@ export async function resolveNotificationContext(notification: {
       projectName: task.projectName,
       taskId: task.taskId,
       taskTitle: task.taskTitle,
+      taskKey: buildTaskKey(task.projectSlug, task.taskNumber),
+      taskNumber: task.taskNumber,
       taskUrl: buildTaskUrl(task.workspaceId, task.projectId, task.taskId),
     };
   }
@@ -272,6 +289,8 @@ export async function resolveNotificationContext(notification: {
       projectName: null,
       taskId: null,
       taskTitle: null,
+      taskKey: null,
+      taskNumber: null,
       taskUrl: null,
     };
   }
@@ -337,6 +356,36 @@ async function sendGotifyNotification(input: {
             }
           : undefined,
       }),
+    },
+    { publicDestination: true, timeoutMs: 15_000 },
+  );
+}
+
+/**
+ * Publish to a Pinglet topic through Pinglet's Kaneo rewrite
+ * (`?rewrite=kaneo`), which reads the same payload as the generic webhook. The
+ * rewrite is what marks the message as coming from Kaneo, so Pinglet's apps
+ * show the Kaneo logo, put the project and ticket id in the header, stack
+ * notifications per project and offer an "Open task" action.
+ */
+const PINGLET_URL = "https://pinglet.dev";
+
+async function sendPingletNotification(input: {
+  namespace: string;
+  topic: string;
+  token: string;
+  payload: Record<string, unknown>;
+}) {
+  await sendOutboundRequest(
+    `${PINGLET_URL}/v1/${encodeURIComponent(input.namespace)}/${encodeURIComponent(
+      input.topic,
+    )}/publish?rewrite=kaneo`,
+    {
+      headers: {
+        Authorization: `Bearer ${input.token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(input.payload),
     },
     { publicDestination: true, timeoutMs: 15_000 },
   );
@@ -422,6 +471,7 @@ export async function deliverNotification(
     ...preference,
     ntfyToken: decryptSecret(preference.ntfyToken),
     gotifyToken: decryptSecret(preference.gotifyToken),
+    pingletToken: decryptSecret(preference.pingletToken),
     webhookSecret: decryptSecret(preference.webhookSecret),
   };
 
@@ -462,7 +512,8 @@ export async function deliverNotification(
     user.locale ?? null,
   );
 
-  const webhookPayload = {
+  // Pinglet gets the webhook payload without the recipient's email and name.
+  const pingletPayload = {
     notification: {
       id: notification.id,
       type: notification.type,
@@ -487,9 +538,14 @@ export async function deliverNotification(
       ? {
           id: context.taskId,
           title: context.taskTitle,
+          key: context.taskKey,
+          number: context.taskNumber,
           url: context.taskUrl,
         }
       : null,
+  };
+  const webhookPayload = {
+    ...pingletPayload,
     user: {
       id: notification.userId,
       email: user.email,
@@ -563,6 +619,23 @@ export async function deliverNotification(
         title: content.title,
         body: content.body,
         clickUrl: context.taskUrl,
+      }),
+    );
+  }
+
+  if (
+    decryptedPreference.pingletEnabled &&
+    decryptedPreference.pingletNamespace &&
+    decryptedPreference.pingletTopic &&
+    decryptedPreference.pingletToken &&
+    rule.pingletEnabled
+  ) {
+    deliveries.push(
+      sendPingletNotification({
+        namespace: decryptedPreference.pingletNamespace,
+        topic: decryptedPreference.pingletTopic,
+        token: decryptedPreference.pingletToken,
+        payload: pingletPayload,
       }),
     );
   }

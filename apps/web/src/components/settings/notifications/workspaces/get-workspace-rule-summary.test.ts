@@ -29,6 +29,7 @@ const availability: ChannelAvailabilityMap = {
   email: "available",
   gotify: "available",
   ntfy: "paused",
+  pinglet: "notConnected",
   webhook: "notConnected",
 };
 
@@ -37,6 +38,7 @@ const rule: WorkspaceRule = {
   emailEnabled: true,
   gotifyEnabled: true,
   ntfyEnabled: false,
+  pingletEnabled: false,
   webhookEnabled: false,
   projectMode: "all",
   selectedProjectIds: [],

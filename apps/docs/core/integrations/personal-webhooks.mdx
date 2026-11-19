@@ -24,7 +24,7 @@ Kaneo sends a JSON POST with these fields:
 | `notification` | ID, type, title, content, creation time, event data, resource ID, and resource type |
 | `workspace` | Workspace ID and name |
 | `project` | Project ID and name, or `null` |
-| `task` | Task ID, title, and URL, or `null` |
+| `task` | Task ID, title, ticket id (`key`, such as `WEB-42`), number, and URL, or `null` |
 | `user` | Your user ID, name, and email |
 
 A notification needs a resolvable workspace context for external delivery. It must also pass the active workspace rule and project selection.

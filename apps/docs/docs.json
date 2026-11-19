@@ -176,6 +176,7 @@
 						"pages": [
 							"core/integrations/ntfy",
 							"core/integrations/gotify",
+							"core/integrations/pinglet",
 							"core/integrations/personal-webhooks"
 						]
 					},

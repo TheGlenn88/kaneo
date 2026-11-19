@@ -8,6 +8,8 @@ const base = {
   gotifyEnabled: false,
   ntfyConfigured: true,
   ntfyEnabled: false,
+  pingletConfigured: true,
+  pingletEnabled: true,
   webhookConfigured: true,
   webhookEnabled: true,
 };
@@ -18,6 +20,7 @@ describe("getChannelAvailability", () => {
       email: "available",
       gotify: "notConnected",
       ntfy: "paused",
+      pinglet: "available",
       webhook: "available",
     });
   });

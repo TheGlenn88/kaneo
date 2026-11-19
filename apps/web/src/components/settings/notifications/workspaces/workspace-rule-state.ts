@@ -11,6 +11,7 @@ export type WorkspaceRule = Pick<
   | "emailEnabled"
   | "gotifyEnabled"
   | "ntfyEnabled"
+  | "pingletEnabled"
   | "webhookEnabled"
   | "projectMode"
   | "selectedProjectIds"
@@ -22,6 +23,7 @@ export const RULE_CHANNEL_KEYS = {
   email: "emailEnabled",
   gotify: "gotifyEnabled",
   ntfy: "ntfyEnabled",
+  pinglet: "pingletEnabled",
   webhook: "webhookEnabled",
 } as const satisfies Record<NotificationChannelId, keyof WorkspaceRule>;
 
@@ -35,6 +37,7 @@ export function createWorkspaceRuleState(
       emailEnabled: rule.emailEnabled,
       gotifyEnabled: rule.gotifyEnabled,
       ntfyEnabled: rule.ntfyEnabled,
+      pingletEnabled: rule.pingletEnabled,
       webhookEnabled: rule.webhookEnabled,
       projectMode: rule.projectMode,
       selectedProjectIds: rule.selectedProjectIds,
@@ -46,6 +49,7 @@ export function createWorkspaceRuleState(
     emailEnabled: availability.email === "available",
     gotifyEnabled: availability.gotify === "available",
     ntfyEnabled: availability.ntfy === "available",
+    pingletEnabled: availability.pinglet === "available",
     webhookEnabled: availability.webhook === "available",
     projectMode: "all",
     selectedProjectIds: [],
@@ -61,6 +65,8 @@ export function toWorkspaceRuleRequest(
     emailEnabled: state.emailEnabled && availability.email === "available",
     gotifyEnabled: state.gotifyEnabled && availability.gotify === "available",
     ntfyEnabled: state.ntfyEnabled && availability.ntfy === "available",
+    pingletEnabled:
+      state.pingletEnabled && availability.pinglet === "available",
     webhookEnabled:
       state.webhookEnabled && availability.webhook === "available",
     projectMode: state.projectMode,

@@ -1,4 +1,9 @@
-import { BellIcon, SquareTerminalIcon, WebhookIcon } from "lucide-react";
+import {
+  BellIcon,
+  BellRingIcon,
+  SquareTerminalIcon,
+  WebhookIcon,
+} from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SettingsCard } from "@/components/settings/settings-card";
@@ -12,6 +17,7 @@ import { EmailChannelRow } from "./email-channel-row";
 import { EmailDigestRow } from "./email-digest-row";
 import { GotifyChannelPanel } from "./gotify-channel-panel";
 import { NtfyChannelPanel } from "./ntfy-channel-panel";
+import { PingletChannelPanel } from "./pinglet-channel-panel";
 import { WebhookChannelPanel } from "./webhook-channel-panel";
 
 type ChannelsSectionProps = {
@@ -64,6 +70,25 @@ export function ChannelsSection({ preferences }: ChannelsSectionProps) {
           open={openChannel === "ntfy"}
         >
           <NtfyChannelPanel
+            onDisconnected={closePanel}
+            preferences={preferences}
+          />
+        </ChannelRow>
+        <ChannelRow
+          availability={availability.pinglet}
+          channel="pinglet"
+          description={t("settings:notificationsPage.pingletDescription")}
+          detail={
+            preferences.pingletConfigured
+              ? `${preferences.pingletNamespace}/${preferences.pingletTopic}`
+              : null
+          }
+          icon={<BellRingIcon className="text-violet-500" />}
+          name={t("settings:notificationsPage.pingletTitle")}
+          onOpenChange={panelToggle("pinglet")}
+          open={openChannel === "pinglet"}
+        >
+          <PingletChannelPanel
             onDisconnected={closePanel}
             preferences={preferences}
           />

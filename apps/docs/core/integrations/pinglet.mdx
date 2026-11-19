@@ -1,0 +1,41 @@
+---
+title: Pinglet
+description: Send personal Kaneo notifications to the Pinglet app.
+---
+
+[Pinglet](https://pinglet.dev) is a push notification service with Android and iOS apps. Kaneo publishes your account notifications to a Pinglet topic, and the app shows each one with:
+
+- the Kaneo logo
+- the project
+- the task's ticket id, such as `WEB-42`
+- an **Open task** button
+
+Notifications from the same project are grouped together.
+
+## Connect Pinglet
+
+1. In your Pinglet dashboard, choose the namespace to publish to and create an API key for it.
+2. Open **Settings → Account → Notifications** in Kaneo and find **Pinglet**.
+3. Enter the namespace and a topic name, such as `kaneo`. Pinglet creates the topic on the first notification if it doesn't exist yet.
+4. Paste the API key and choose **Connect Pinglet**.
+5. Subscribe to the topic in the Pinglet app.
+
+Kaneo posts the same JSON as the [personal webhook](/core/integrations/personal-webhooks), without the `user` block, to `https://pinglet.dev/v1/<namespace>/<topic>/publish?rewrite=kaneo` with the API key as a bearer token. The task block also carries `key` (the ticket id) and `number`.
+
+## Choose what reaches Pinglet
+
+Enable your event categories at the top of the page. Add an active workspace rule, enable Pinglet on it, and choose all projects or specific ones. Save the rule.
+
+## Change or disconnect
+
+Enter a new API key and choose **Save changes** to rotate it. An empty key field keeps the saved key. **Disconnect** removes the namespace, topic and key from Kaneo. Revoke the key in Pinglet if nothing else uses it.
+
+## Self-hosting requirements
+
+To save an API key, the Kaneo API needs a stable `NOTIFICATION_SECRET_ENCRYPTION_KEY`; see [notification server settings](/core/installation/environment-variables#notifications). The API must be able to reach `pinglet.dev` over HTTPS.
+
+If a notification reaches your Kaneo inbox but not your phone, check:
+
+- the channel and workspace rule
+- that the API key belongs to the namespace you entered
+- that the app is subscribed to the topic

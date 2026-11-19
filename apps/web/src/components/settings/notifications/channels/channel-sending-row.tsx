@@ -9,6 +9,7 @@ import type { ExternalChannelId } from "../notification-channels";
 const ENABLED_KEYS = {
   gotify: "gotifyEnabled",
   ntfy: "ntfyEnabled",
+  pinglet: "pingletEnabled",
   webhook: "webhookEnabled",
 } as const satisfies Record<
   ExternalChannelId,

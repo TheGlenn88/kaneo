@@ -1044,6 +1044,10 @@ export const userNotificationPreferenceTable = pgTable(
     gotifyEnabled: boolean("gotify_enabled").default(false).notNull(),
     gotifyServerUrl: text("gotify_server_url"),
     gotifyToken: text("gotify_token"),
+    pingletEnabled: boolean("pinglet_enabled").default(false).notNull(),
+    pingletNamespace: text("pinglet_namespace"),
+    pingletTopic: text("pinglet_topic"),
+    pingletToken: text("pinglet_token"),
     webhookEnabled: boolean("webhook_enabled").default(false).notNull(),
     webhookUrl: text("webhook_url"),
     webhookSecret: text("webhook_secret"),
@@ -1094,6 +1098,7 @@ export const userNotificationWorkspaceRuleTable = pgTable(
     emailEnabled: boolean("email_enabled").default(false).notNull(),
     ntfyEnabled: boolean("ntfy_enabled").default(false).notNull(),
     gotifyEnabled: boolean("gotify_enabled").default(false).notNull(),
+    pingletEnabled: boolean("pinglet_enabled").default(false).notNull(),
     webhookEnabled: boolean("webhook_enabled").default(false).notNull(),
     projectMode: text("project_mode").default("all").notNull(),
     createdAt: timestamp("created_at", { mode: "date" })

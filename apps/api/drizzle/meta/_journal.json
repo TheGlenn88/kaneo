@@ -526,6 +526,13 @@
       "when": 1794651213081,
       "tag": "0074_notification_email_digest",
       "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1794951209092,
+      "tag": "0075_pinglet_notifications",
+      "breakpoints": true
     }
   ]
 }
