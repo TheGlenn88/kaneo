@@ -996,6 +996,10 @@ export const notificationTable = pgTable(
     isRead: boolean("is_read").default(false),
     resourceId: text("resource_id"),
     resourceType: text("resource_type"),
+    emailDigestQueuedAt: timestamp("email_digest_queued_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
     createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -1004,7 +1008,12 @@ export const notificationTable = pgTable(
       .$onUpdate(() => new Date())
       .notNull(),
   },
-  (table) => [index("notification_userId_idx").on(table.userId)],
+  (table) => [
+    index("notification_userId_idx").on(table.userId),
+    index("notification_email_digest_queued_idx")
+      .on(table.userId, table.emailDigestQueuedAt)
+      .where(sql`${table.emailDigestQueuedAt} IS NOT NULL`),
+  ],
 );
 
 export const userNotificationPreferenceTable = pgTable(
@@ -1021,6 +1030,13 @@ export const userNotificationPreferenceTable = pgTable(
         onUpdate: "cascade",
       }),
     emailEnabled: boolean("email_enabled").default(false).notNull(),
+    emailDigestEnabled: boolean("email_digest_enabled")
+      .default(false)
+      .notNull(),
+    lastEmailDigestSentAt: timestamp("last_email_digest_sent_at", {
+      mode: "date",
+      withTimezone: true,
+    }),
     ntfyEnabled: boolean("ntfy_enabled").default(false).notNull(),
     ntfyServerUrl: text("ntfy_server_url"),
     ntfyTopic: text("ntfy_topic"),

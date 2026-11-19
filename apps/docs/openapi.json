@@ -2165,6 +2165,10 @@
           "emailEnabled": {
             "type": "boolean"
           },
+          "emailDigestEnabled": {
+            "type": "boolean",
+            "description": "Email notifications that arrive close together are grouped into one email."
+          },
           "ntfyEnabled": {
             "type": "boolean"
           },
@@ -2275,6 +2279,7 @@
         "required": [
           "emailAddress",
           "emailEnabled",
+          "emailDigestEnabled",
           "ntfyEnabled",
           "ntfyConfigured",
           "ntfyServerUrl",
@@ -17491,6 +17496,10 @@
                 "properties": {
                   "emailEnabled": {
                     "type": "boolean"
+                  },
+                  "emailDigestEnabled": {
+                    "type": "boolean",
+                    "description": "Group email notifications that arrive close together into one email."
                   },
                   "ntfyEnabled": {
                     "type": "boolean"

@@ -18,6 +18,9 @@ import MagicLinkEmail from "./templates/magic-link";
 import NotificationEmail, {
   type NotificationEmailProps,
 } from "./templates/notification";
+import NotificationDigestEmail, {
+  type NotificationDigestEmailProps,
+} from "./templates/notification-digest";
 import type { OtpEmailProps } from "./templates/otp";
 import OtpEmail from "./templates/otp";
 import TestEmail, { type TestEmailProps } from "./templates/test-email";
@@ -165,6 +168,29 @@ export const sendNotificationEmail = async (
     return { success: true };
   } catch (error) {
     console.error("Error sending notification email", error);
+    throw error;
+  }
+};
+
+export const sendNotificationDigestEmail = async (
+  to: string,
+  subject: EmailSubject,
+  data: NotificationDigestEmailProps,
+): Promise<EmailResult> => {
+  if (!isSmtpConfigured()) {
+    return { success: false, reason: "SMTP_NOT_CONFIGURED" };
+  }
+
+  try {
+    const email = await render(NotificationDigestEmail(data), subject);
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM,
+      to,
+      ...email,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Error sending notification digest email", error);
     throw error;
   }
 };

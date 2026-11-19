@@ -27,6 +27,10 @@ export const notificationPreferenceSchema = z
   .object({
     emailAddress: z.string().nullable(),
     emailEnabled: z.boolean(),
+    emailDigestEnabled: z.boolean().openapi({
+      description:
+        "Email notifications that arrive close together are grouped into one email.",
+    }),
     ntfyEnabled: z.boolean(),
     ntfyConfigured: z.boolean(),
     ntfyServerUrl: z.string().nullable(),

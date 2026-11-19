@@ -78,6 +78,33 @@ describe("ChannelsSection", () => {
     mutateAsync.mockResolvedValue(undefined);
   });
 
+  it("offers email grouping only while email is on", () => {
+    const { rerender } = render(
+      <ChannelsSection preferences={basePreferences} />,
+    );
+    expect(
+      screen.queryByLabelText(
+        "settings:notificationsPage.emailDigestToggleLabel",
+      ),
+    ).toBeNull();
+
+    rerender(
+      <ChannelsSection
+        preferences={{
+          ...basePreferences,
+          emailEnabled: true,
+          emailDigestEnabled: false,
+        }}
+      />,
+    );
+    fireEvent.click(
+      screen.getByLabelText(
+        "settings:notificationsPage.emailDigestToggleLabel",
+      ),
+    );
+    expect(mutate).toHaveBeenCalledWith({ emailDigestEnabled: true });
+  });
+
   it("turns email delivery on right away", () => {
     render(<ChannelsSection preferences={basePreferences} />);
 

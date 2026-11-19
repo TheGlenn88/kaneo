@@ -19,6 +19,7 @@ export type NotificationPreferenceWorkspaceRule = {
 export type NotificationPreferences = {
   emailAddress: string | null;
   emailEnabled: boolean;
+  emailDigestEnabled: boolean;
   ntfyEnabled: boolean;
   ntfyConfigured: boolean;
   ntfyServerUrl: string | null;

@@ -242,6 +242,16 @@ Name | Description |
 | `NODE_EXTRA_CA_CERTS` | Path to a trusted CA PEM file for a private SMTP certificate authority. Set before starting the API; certificate expiry and hostname checks remain enabled.
 | `KANEO_EMAIL_ASSETS_URL` | Optional base URL for the logo and icons in emails (default: `KANEO_CLIENT_URL` followed by `/email`). Mail clients load these images directly, so set this to a public URL if your instance is only reachable on a private network.
 
+Users who turn on **Group emails** in their notification settings get one email for notifications that arrive close together. These settings control when that email is sent:
+
+Name | Description |
+--- | --- |
+| `NOTIFICATION_EMAIL_DIGEST_QUIET_MINUTES` | Send once no new notification has arrived for this many minutes (default: `10`).
+| `NOTIFICATION_EMAIL_DIGEST_MAX_DELAY_MINUTES` | Send anyway once the oldest waiting notification is this many minutes old, so steady activity still gets through (default: `60`).
+| `NOTIFICATION_EMAIL_DIGEST_MIN_INTERVAL_MINUTES` | Wait at least this many minutes between two grouped emails to the same user (default: `30`).
+
+Notifications read in Kaneo before the email goes out are left out of it.
+
 When upgrading, remove `SMTP_IGNORE_TLS=true` and verify delivery with the corrected certificate trust configuration before rollout. Fix invalid certificates instead of disabling validation. [Nodemailer documents the difference between STARTTLS and certificate validation](https://nodemailer.com/smtp#tls-options).
 
 ## Key points

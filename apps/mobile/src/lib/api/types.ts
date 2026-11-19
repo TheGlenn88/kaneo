@@ -377,6 +377,7 @@ export type Notification = {
 export type NotificationPreferences = {
   emailAddress?: string | null;
   emailEnabled?: boolean;
+  emailDigestEnabled?: boolean;
   ntfyEnabled?: boolean;
   ntfyServerUrl?: string | null;
   ntfyTopic?: string | null;
@@ -397,6 +398,7 @@ export type NotificationPreferences = {
 /** Fields left undefined are omitted from the request, which keeps the server value. */
 export type UpdateNotificationPreferences = Partial<{
   emailEnabled: boolean;
+  emailDigestEnabled: boolean;
   ntfyEnabled: boolean;
   ntfyServerUrl: string;
   ntfyTopic: string;

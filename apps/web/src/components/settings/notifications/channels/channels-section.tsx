@@ -9,6 +9,7 @@ import { getUrlHost } from "../get-url-host";
 import type { ExternalChannelId } from "../notification-channels";
 import { ChannelRow } from "./channel-row";
 import { EmailChannelRow } from "./email-channel-row";
+import { EmailDigestRow } from "./email-digest-row";
 import { GotifyChannelPanel } from "./gotify-channel-panel";
 import { NtfyChannelPanel } from "./ntfy-channel-panel";
 import { WebhookChannelPanel } from "./webhook-channel-panel";
@@ -34,6 +35,9 @@ export function ChannelsSection({ preferences }: ChannelsSectionProps) {
     >
       <SettingsCard>
         <EmailChannelRow preferences={preferences} />
+        {preferences.emailEnabled ? (
+          <EmailDigestRow preferences={preferences} />
+        ) : null}
         <ChannelRow
           availability={availability.gotify}
           channel="gotify"
